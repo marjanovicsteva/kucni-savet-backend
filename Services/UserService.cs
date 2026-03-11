@@ -1,74 +1,64 @@
-using KucniSavetBackend.Model;
-using KucniSavetBackend.DTO;
-using Raven.Client.Documents;
-using KucniSavetBackend.Responses;
+using KucniSavetBackend.Domain;
+using KucniSavetBackend.DTO.Requests.User;
+using KucniSavetBackend.DTO.Responses;
+using KucniSavetBackend.Interfaces.Repositories;
+using KucniSavetBackend.Interfaces.Services;
 using KucniSavetBackend.Mappers;
 
 namespace KucniSavetBackend.Services;
 
-public class UserService
+public class UserService : IUserService
 {
-    private readonly IDocumentStore _store;
-    
-    public UserService(IDocumentStore store)
+    private readonly IUserRepository _userRepository;
+    private readonly IHouseholdRepository _householdRepository;
+
+    public UserService(IUserRepository userRepository, IHouseholdRepository householdRepository)
     {
-        _store = store;
+        _userRepository = userRepository;
+        _householdRepository = householdRepository;
     }
 
-    public async Task<UsersResponse> GetAllAsync(Pagination? pagination)
+    public async Task<UserResponse> CreateAsync(CreateUserRequest request)
     {
-        using var session = _store.OpenAsyncSession();
+        // Do validation at the beginning
 
-        IQueryable<User> userQuery = session.Query<User>()
-            .OrderBy(user => user.Name);
-
-        var count = await userQuery.CountAsync();
-
-        if (pagination is not null)
+        var user = new User
         {
-            pagination.CalculateTotalPages(count);
-            int skip = (pagination.PageNumber - 1) * pagination.PageSize;
-            userQuery = userQuery
-                .Skip(skip)
-                .Take(pagination.PageSize);
-        }
-
-        var users = await userQuery.ToListAsync();
-        var usersData = users.Select(UserMapper.ToDto).ToList();
-
-        return new UsersResponse
-        {
-            Data = usersData,
-            Count = count,
-            Pagination = pagination
+            Name = request.Name,
+            Email = request.Email,
+            Image = request.Image
         };
+
+        user = await _userRepository.CreateAsync(user);
+
+        return UserMapper.ToResponse(user);
     }
 
-    public async Task<User> Get(string id)
+    public async Task<UserResponse> CreateWithHousehold(CreateUserRequest request)
     {
-        using var session = _store.OpenAsyncSession();
+        var household = new Household
+        {
+            Name = request.HouseholdName
+        };
 
-        var user = await session.LoadAsync<User>(id);
-        
-        return user;
+        household = await _householdRepository.CreateAsync(household);
+
+        var user = new User
+        {
+            Name = request.Name,
+            Email = request.Email,
+            Image = request.Image,
+            Household = household
+        };
+
+        user = await _userRepository.CreateAsync(user);
+
+        return UserMapper.ToResponse(user);
     }
 
-    public async Task<User> Create(User user)
+    public async Task<UserResponse?> GetByIdAsync(string id)
     {
-        using var session = _store.OpenAsyncSession();
-
-        await session.StoreAsync(user);
-        await session.SaveChangesAsync();
-
-        return user;
-    }
-
-    public async Task<User> Update(User user)
-    {
-        using var session = _store.OpenAsyncSession();
-
-
-
-        throw new NotImplementedException();
+        var user = await _userRepository.GetByIdAsync(id);
+        return user is not null ? UserMapper.ToResponse(user) : null;
     }
 }

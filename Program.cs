@@ -1,9 +1,10 @@
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
-using KucniSavetBackend.Contexts;
+using KucniSavetBackend.Interfaces.Repositories;
+using KucniSavetBackend.Interfaces.Services;
+using KucniSavetBackend.Repositories.RavenDB;
 using KucniSavetBackend.Services;
-using Microsoft.EntityFrameworkCore;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Session;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +27,17 @@ builder.Services.AddSingleton<IDocumentStore>(sp =>
     store.Initialize();
     return store;
 });
-builder.Services.AddScoped<UserService>();
+
+builder.Services.AddScoped<IAsyncDocumentSession>(sp =>
+{
+    var store = sp.GetRequiredService<IDocumentStore>();
+    return store.OpenAsyncSession();
+});
+
+builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
+builder.Services.AddScoped<IHouseholdService, HouseholdService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
