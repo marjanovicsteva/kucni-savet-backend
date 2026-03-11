@@ -4,6 +4,6 @@ namespace KucniSavetBackend.Interfaces.Repositories;
 
 public interface IUserRepository
 {
-    Task<User?> GetByIdAsync(string id);
-    Task<User> CreateAsync(User user);
+    Task<User?> GetByIdAsync(string key, bool prefixed = false);
+    Task<User?> CreateAsync(User user);
 }

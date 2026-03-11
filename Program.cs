@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using KucniSavetBackend.Interfaces.Repositories;
 using KucniSavetBackend.Interfaces.Services;
+using KucniSavetBackend.Repositories;
 using KucniSavetBackend.Repositories.RavenDB;
 using KucniSavetBackend.Services;
 using Raven.Client.Documents;
@@ -38,6 +39,8 @@ builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
 builder.Services.AddScoped<IHouseholdService, HouseholdService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IChoreRepository, ChoreRepository>();
+builder.Services.AddScoped<IChoreService, ChoreService>();
 
 var app = builder.Build();
 

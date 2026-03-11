@@ -8,15 +8,22 @@ namespace KucniSavetBackend.Repositories.RavenDB;
 public class HouseholdRepository : IHouseholdRepository
 {
     private readonly IAsyncDocumentSession _session;
+    private static readonly string _prefix = nameof(HouseholdDocument);
+    public static string Id(string key) => $"{_prefix}s/{key}";
 
     public HouseholdRepository(IAsyncDocumentSession session)
     {
         _session = session;
     }
 
-    public async Task<Household?> GetByIdAsync(string id)
+    public async Task<Household?> GetByIdAsync(string key, bool prefixed = false)
     {
+        string id = prefixed ? key : Id(key);
+        
         var doc = await _session.LoadAsync<HouseholdDocument>(id);
+
+        if (doc is null)
+            return null;
 
         return new Household
         {
@@ -25,7 +32,7 @@ public class HouseholdRepository : IHouseholdRepository
         };
     }
 
-    public async Task<Household> CreateAsync(Household household)
+    public async Task<Household?> CreateAsync(Household household)
     {
         var doc = new HouseholdDocument
         {
@@ -36,7 +43,6 @@ public class HouseholdRepository : IHouseholdRepository
         await _session.StoreAsync(doc);
         await _session.SaveChangesAsync();
 
-        household.Id = doc.Id;
-        return household;
+        return await GetByIdAsync(doc.Id, true);
     }
 }

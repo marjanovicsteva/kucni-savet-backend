@@ -8,14 +8,17 @@ namespace KucniSavetBackend.Repositories.RavenDB;
 public class UserRepository : IUserRepository
 {
     private readonly IAsyncDocumentSession _session;
-
+    private static readonly string _prefix = nameof(UserDocument);
+    public static string Id(string key) => $"{_prefix}s/{key}";
     public UserRepository(IAsyncDocumentSession session)
     {
         _session = session;
     }
 
-    public async Task<User?> GetByIdAsync(string id)
+    public async Task<User?> GetByIdAsync(string key, bool prefixed = false)
     {
+        string id = prefixed ? key : Id(key);
+
         var doc = await _session.LoadAsync<UserDocument>(id);
 
         if (doc is null)
@@ -42,7 +45,7 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task<User> CreateAsync(User user)
+    public async Task<User?> CreateAsync(User user)
     {
         var doc = new UserDocument
         {
@@ -56,7 +59,6 @@ public class UserRepository : IUserRepository
         await _session.StoreAsync(doc);
         await _session.SaveChangesAsync();
 
-        user.Id = doc.Id;
-        return user;
+        return await GetByIdAsync(doc.Id, true);
     }
 }

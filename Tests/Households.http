@@ -1,5 +1,5 @@
 @KucniSavetBackend_HostAddress = http://localhost:5210
-@ID = a/33-A
+@ID = 33-A
 
 ### Create household
 # @name CreateHousehold
@@ -8,11 +8,11 @@ Accept: application/json
 Content-Type: application/json
 
 {
-    "name": "Kuca Mirkovic"
+    "name": "Kuca Mirkovic TEST"
 }
 
 ### Get one Household
-GET {{KucniSavetBackend_HostAddress}}/api/household/{{CreateHousehold.response.body.id}}
+GET {{KucniSavetBackend_HostAddress}}/api/household/{{ID}}
 
 ### Get one Household - NOTFOUND
 GET {{KucniSavetBackend_HostAddress}}/api/household/loremipsum

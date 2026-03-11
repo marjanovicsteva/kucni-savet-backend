@@ -1,0 +1,19 @@
+@KucniSavetBackend_HostAddress = http://localhost:5210
+@ID = 1-A
+
+### Create chore
+# @name CreateChore
+POST {{KucniSavetBackend_HostAddress}}/api/chore
+Accept: application/json
+Content-Type: application/json
+
+{
+    "name": "Usisavanje",
+    "frequency": 7
+}
+
+### Get one Chore
+GET {{KucniSavetBackend_HostAddress}}/api/chore/{{ID}}
+
+### Assign User to Chore
+POST {{KucniSavetBackend_HostAddress}}/api/chore/{{ID}}/assign/97-A

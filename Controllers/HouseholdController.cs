@@ -2,7 +2,7 @@ using KucniSavetBackend.DTO.Requests.User;
 using KucniSavetBackend.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MyApp.Namespace;
+namespace KucniSavetBackend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
