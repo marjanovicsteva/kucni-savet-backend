@@ -6,5 +6,7 @@ public interface IChoreRepository
 {
     Task<Chore?> GetByIdAsync(string key, bool prefixed = false);
     Task<Chore?> CreateAsync(Chore chore);
-    Task<Chore?> AddAssigneeAsync(string choreKey, string assigneeKey);
+    Task<Chore?> UpdateAsync(Chore chore);
+    Task DeleteAsync(string key, bool prefixed = false);
+    Task DeleteAsync(Chore chore);
 }

@@ -61,4 +61,31 @@ public class UserRepository : IUserRepository
 
         return await GetByIdAsync(doc.Id, true);
     }
+
+    public async Task<User?> UpdateAsync(User user)
+    {
+        var doc = await _session.LoadAsync<UserDocument>(user.Id);
+
+        doc.Name = user.Name;
+        doc.Image = user.Image;
+        doc.Email = user.Email;
+
+        await _session.SaveChangesAsync();
+
+        return await GetByIdAsync(doc.Id, true);
+    }
+
+    public async Task DeleteAsync(string key, bool prefixed = false)
+    {
+        string id = prefixed ? key : Id(key);
+
+        _session.Delete(id);
+
+        await _session.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(User user)
+    {
+        await DeleteAsync(user.Id, true);
+    }
 }

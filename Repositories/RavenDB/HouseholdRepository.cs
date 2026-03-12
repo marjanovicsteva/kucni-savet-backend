@@ -45,4 +45,29 @@ public class HouseholdRepository : IHouseholdRepository
 
         return await GetByIdAsync(doc.Id, true);
     }
+
+    public async Task<Household?> UpdateAsync(Household household)
+    {
+        var doc = await _session.LoadAsync<HouseholdDocument>(household.Id);
+
+        doc.Name = household.Name;
+
+        await _session.SaveChangesAsync();
+
+        return await GetByIdAsync(doc.Id, true);
+    }
+
+    public async Task DeleteAsync(string key, bool prefixed = false)
+    {
+        string id = prefixed ? key : Id(key);
+
+        _session.Delete(id);
+
+        await _session.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Household household)
+    {
+        await DeleteAsync(household.Id, true);
+    }
 }

@@ -5,6 +5,6 @@ namespace KucniSavetBackend.Interfaces.Services;
 
 public interface IHouseholdService
 {
-    Task<HouseholdResponse?> GetByIdAsync(string id);
+    Task<HouseholdResponse> GetByIdAsync(string id);
     Task<HouseholdResponse> CreateAsync(CreateHouseholdRequest request);
 }

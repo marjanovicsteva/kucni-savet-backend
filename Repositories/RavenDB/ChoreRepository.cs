@@ -56,19 +56,30 @@ public class ChoreRepository : IChoreRepository
             }).ToList()
         };
     }
-    
-    public async Task<Chore?> AddAssigneeAsync(string choreId, string assigneeId)
+
+    public async Task<Chore?> UpdateAsync(Chore chore)
     {
-        var chore = await _session.LoadAsync<ChoreDocument>(Id(choreId));
-        assigneeId = UserRepository.Id(assigneeId);
-
-        if (chore.AssigneesIds.Contains(assigneeId))
-            return await GetByIdAsync(choreId);
-
-        chore.AssigneesIds.Add(assigneeId);
+        var doc = await _session.LoadAsync<ChoreDocument>(chore.Id);
+        
+        doc.Name = chore.Name;
+        doc.Frequency = chore.Frequency;
+        doc.LastDone = chore.LastDone;
+        doc.AssigneesIds = chore.Assignees.Select(assignee => assignee.Id).ToList();
 
         await _session.SaveChangesAsync();
-        
-        return await GetByIdAsync(chore.Id, true);
+
+        return await GetByIdAsync(doc.Id, true);
+    }
+
+    public async Task DeleteAsync(string key, bool prefixed = false)
+    {
+        string id = prefixed ? key : Id(key);
+        _session.Delete(id);
+        await _session.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Chore chore)
+    {
+        await DeleteAsync(chore.Id, true);
     }
 }

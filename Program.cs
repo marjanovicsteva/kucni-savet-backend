@@ -1,6 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using KucniSavetBackend.Interfaces.Repositories;
 using KucniSavetBackend.Interfaces.Services;
+using KucniSavetBackend.Middleware;
 using KucniSavetBackend.Repositories;
 using KucniSavetBackend.Repositories.RavenDB;
 using KucniSavetBackend.Services;
@@ -42,17 +43,21 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IChoreRepository, ChoreRepository>();
 builder.Services.AddScoped<IChoreService, ChoreService>();
 
+builder.Services.AddTransient<ExceptionMiddleware>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseExceptionHandler("/Error");
     app.MapOpenApi();
     app.UseSwaggerUi(options =>
     {
         options.DocumentPath = "/openapi/v1.json";
     });
 }
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
