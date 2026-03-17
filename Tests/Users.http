@@ -8,9 +8,7 @@ Accept: application/json
 Content-Type: application/json
 
 {
-    "email": "korisnik@imejl.rs",
-    "name": "Gal Kapucino",
-    "image": null,
+    "facebookAccessToken": "",
     "householdName": "Kuca Mirkovic"
 }
 

@@ -32,9 +32,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            var created = string.IsNullOrEmpty(user.HouseholdName)
-                ? await _userService.CreateAsync(user)
-                : await _userService.CreateWithHousehold(user);
+            var created = await _userService.CreateAsync(user);
 
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }

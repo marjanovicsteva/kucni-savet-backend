@@ -28,7 +28,6 @@ public class UserRepository : IUserRepository
         {
             Id = doc.Id,
             Name = doc.Name,
-            Email = doc.Email,
             Image = doc.Image
         };
 
@@ -45,14 +44,19 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public Task<User?> GetByFacebookIdAsync(string facebookId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<User?> CreateAsync(User user)
     {
         var doc = new UserDocument
         {
             Id = user.Id,
             Name = user.Name,
-            Email = user.Email,
             Image = user.Image,
+            FacebookId = user.FacebookId,
             HouseholdId = user.Household?.Id
         };
 
@@ -68,7 +72,6 @@ public class UserRepository : IUserRepository
 
         doc.Name = user.Name;
         doc.Image = user.Image;
-        doc.Email = user.Email;
 
         await _session.SaveChangesAsync();
 

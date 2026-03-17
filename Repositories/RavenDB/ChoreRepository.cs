@@ -50,7 +50,6 @@ public class ChoreRepository : IChoreRepository
             Assignees = assignees.Values.Select(assignee => new User
             {
                 Id = assignee.Id,
-                Email = assignee.Email,
                 Image = assignee.Image,
                 Name = assignee.Name
             }).ToList()

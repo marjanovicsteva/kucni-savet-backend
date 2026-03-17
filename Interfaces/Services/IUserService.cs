@@ -5,7 +5,8 @@ namespace KucniSavetBackend.Interfaces.Services;
 
 public interface IUserService
 {
-    Task<UserResponse> GetByIdAsync(string id);
-    Task<UserResponse> CreateAsync(CreateUserRequest request);
-    Task<UserResponse> CreateWithHousehold(CreateUserRequest request);
+    Task<UserResponse?> GetByIdAsync(string id);
+    Task<UserResponse?> GetByFacebookIdAsync(string facebookId);
+    Task<FacebookMeResponse?> GetUserFacebookDataAsync(string facebookAccessToken);
+    Task<UserResponse?> CreateAsync(CreateUserRequest request);
 }

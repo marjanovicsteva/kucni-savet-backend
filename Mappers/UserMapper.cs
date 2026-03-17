@@ -9,7 +9,6 @@ public static class UserMapper
     {
         Id = user.Id,
         Name = user.Name,
-        Email = user.Email,
         Image = user.Image,
         Household = user.Household is not null ? HouseholdMapper.ToResponse(user.Household) : null,
     };
@@ -18,7 +17,6 @@ public static class UserMapper
     {
         Id = user.Id,
         Name = user.Name,
-        Email = user.Email,
         Image = user.Image,
         Household = user.Household is not null ? HouseholdMapper.ToDomain(user.Household) : null,
     };
