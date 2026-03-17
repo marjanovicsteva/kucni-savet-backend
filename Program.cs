@@ -1,10 +1,13 @@
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using KucniSavetBackend.Interfaces.Repositories;
 using KucniSavetBackend.Interfaces.Services;
 using KucniSavetBackend.Middleware;
 using KucniSavetBackend.Repositories;
 using KucniSavetBackend.Repositories.RavenDB;
 using KucniSavetBackend.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Session;
 
@@ -38,12 +41,29 @@ builder.Services.AddScoped<IAsyncDocumentSession>(sp =>
 
 builder.Services.AddScoped<IHouseholdRepository, HouseholdRepository>();
 builder.Services.AddScoped<IHouseholdService, HouseholdService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IChoreRepository, ChoreRepository>();
 builder.Services.AddScoped<IChoreService, ChoreService>();
 
 builder.Services.AddTransient<ExceptionMiddleware>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])
+            )
+        };
+    });
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

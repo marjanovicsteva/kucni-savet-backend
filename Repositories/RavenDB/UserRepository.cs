@@ -1,6 +1,7 @@
 using KucniSavetBackend.Domain;
 using KucniSavetBackend.Interfaces.Repositories;
 using KucniSavetBackend.Persistance.Documents;
+using Raven.Client.Documents;
 using Raven.Client.Documents.Session;
 
 namespace KucniSavetBackend.Repositories.RavenDB;
@@ -44,9 +45,32 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public Task<User?> GetByFacebookIdAsync(string facebookId)
+    public async Task<User?> GetByFacebookIdAsync(string facebookId)
     {
-        throw new NotImplementedException();
+        var doc = await _session.Query<UserDocument>()
+            .Where(user => user.FacebookId == facebookId)
+            .FirstOrDefaultAsync();
+
+        if (doc is null) return null;
+
+        var user = new User
+        {
+            Id = doc.Id,
+            Name = doc.Name,
+            Image = doc.Image
+        };
+
+        if (doc.HouseholdId is not null)
+        {
+            var household = await _session.LoadAsync<HouseholdDocument>(doc.HouseholdId);
+            user.Household = new Household
+            {
+                Id = household.Id,
+                Name = household.Name
+            };
+        }
+
+        return user;
     }
 
     public async Task<User?> CreateAsync(User user)

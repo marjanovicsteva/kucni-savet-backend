@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using KucniSavetBackend.DTO.Requests.User;
 using KucniSavetBackend.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KucniSavetBackend.Controllers;
 
@@ -15,7 +16,8 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet("{*id}")]
+    [HttpGet("{id}")]
+    [Authorize]
     public async Task<ActionResult> GetById(string id)
     {
         var user = await _userService.GetByIdAsync(id);
