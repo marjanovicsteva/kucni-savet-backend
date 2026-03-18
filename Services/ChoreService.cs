@@ -9,18 +9,12 @@ using KucniSavetBackend.Repositories.RavenDB;
 
 namespace KucniSavetBackend.Services;
 
-public class ChoreService : IChoreService
+public class ChoreService(IChoreRepository choreRepository, IUserRepository userRepository) : IChoreService
 {
-    private readonly IChoreRepository _choreRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IChoreRepository _choreRepository = choreRepository;
+    private readonly IUserRepository _userRepository = userRepository;
 
-    public ChoreService(IChoreRepository choreRepository, IUserRepository userRepository)
-    {
-        _choreRepository = choreRepository;
-        _userRepository = userRepository;
-    }
-
-    public async Task<ChoreResponse> CreateAsync(CreateChoreRequest request)
+    public async Task<Chore?> CreateAsync(CreateChoreRequest request)
     {
         if (string.IsNullOrEmpty(request.Name))
         {
@@ -35,23 +29,20 @@ public class ChoreService : IChoreService
 
         chore = await _choreRepository.CreateAsync(chore);
 
-        if (chore is null)
-            throw new OperationalException("Error creating a user");
-
-        return ChoreMapper.ToResponse(chore);
+        return chore;
     }
 
-    public async Task<ChoreResponse> GetByIdAsync(string id)
+    public async Task<Chore?> GetByIdAsync(string id)
     {
         var chore = await _choreRepository.GetByIdAsync(id);
 
         if (chore is null)
             throw new NotFoundException<Chore>(id);
 
-        return ChoreMapper.ToResponse(chore);
+        return chore;
     }
 
-    public async Task<ChoreResponse> AddAssigneeToChore(string choreId, string assigneeId)
+    public async Task<Chore?> AddAssigneeToChore(string choreId, string assigneeId)
     {
         var chore = await _choreRepository.GetByIdAsync(choreId);
 
@@ -68,6 +59,6 @@ public class ChoreService : IChoreService
 
         chore = await _choreRepository.UpdateAsync(chore);
 
-        return ChoreMapper.ToResponse(chore);
+        return chore;
     }
 }

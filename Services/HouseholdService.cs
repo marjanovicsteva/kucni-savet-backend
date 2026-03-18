@@ -8,35 +8,43 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace KucniSavetBackend.Services;
 
-public class HouseholdService : IHouseholdService
+public class HouseholdService(IHouseholdRepository householdRepository) : IHouseholdService
 {
-    private readonly IHouseholdRepository _householdRepository;
+    private readonly IHouseholdRepository _householdRepository = householdRepository;
 
-    public HouseholdService(IHouseholdRepository householdRepository)
+    public async Task<Household?> CreateAsync(string name)
     {
-        _householdRepository = householdRepository;
-    }
-
-    public async Task<HouseholdResponse> CreateAsync(CreateHouseholdRequest request)
-    {
-        if (string.IsNullOrEmpty(request.Name))
+        if (string.IsNullOrEmpty(name))
         {
             // Do validation in this layer
         }
 
         var household = new Household
         {
-            Name = request.Name
+            Name = name
         };
 
-        var createdHousehold = await _householdRepository.CreateAsync(household);
+        household = await _householdRepository.CreateAsync(household);
         
-        return HouseholdMapper.ToResponse(createdHousehold);
+        return household;
     }
 
-    public async Task<HouseholdResponse?> GetByIdAsync(string id)
+    public async Task<Household?> GetByIdAsync(string id)
     {
         var household = await _householdRepository.GetByIdAsync(id);
-        return household is not null ? HouseholdMapper.ToResponse(household) : null;
+        return household;
+    }
+
+    public async Task<Household?> UpdateAsync(string id, string name)
+    {
+        var household = await _householdRepository.GetByIdAsync(id);
+
+        if (household is null) return null;
+
+        household.Name = name;
+
+        household = await _householdRepository.UpdateAsync(household);
+
+        return household;
     }
 }

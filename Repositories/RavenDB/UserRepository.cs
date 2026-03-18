@@ -73,11 +73,13 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public async Task<User?> CreateAsync(User user)
+    public async Task<User?> CreateAsync(User? user)
     {
+        if (user is null)
+            return null;
+
         var doc = new UserDocument
         {
-            Id = user.Id,
             Name = user.Name,
             Image = user.Image,
             FacebookId = user.FacebookId,

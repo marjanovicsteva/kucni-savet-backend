@@ -16,9 +16,10 @@ public class AuthService : IAuthService
     private readonly HttpClient _client;
     private readonly Uri FacebookUri = new("https://graph.facebook.com/v25.0");
 
-    public AuthService(IUserRepository userRepository, IConfiguration configuration)
+    public AuthService(IUserRepository userRepository, IHouseholdRepository householdRepository, IConfiguration configuration)
     {
         _userRepository = userRepository;
+        _householdRepository = householdRepository;
         _configuration = configuration;
         _client = new HttpClient
         {
@@ -35,7 +36,8 @@ public class AuthService : IAuthService
 
         var claims = new[]
         {
-            new Claim("id", user.Id)
+            new Claim("userId", user.Id),
+            new Claim("householdId", user.Household.Id)
         };
 
         var token = new JwtSecurityToken(
@@ -49,12 +51,19 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public async Task<User> LoginWithFacebookAsync(string accessToken, string householdName = "")
+    public async Task<User?> LoginWithFacebookAsync(string accessToken)
     {
-        var facebookUser = await _client.GetFromJsonAsync<FacebookMeResponse>($"me?access_token={Uri.EscapeDataString(accessToken)}");
+        if (accessToken == "")
+            return null;
 
-        if (facebookUser is null)
+        FacebookMeResponse? facebookUser;
+        try
+        {
+            facebookUser = await _client.GetFromJsonAsync<FacebookMeResponse>($"me?access_token={Uri.EscapeDataString(accessToken)}");
+        } catch (Exception e)
+        {
             throw new Exception("Invalid Facebook Token");
+        }
 
         var user = await _userRepository.GetByFacebookIdAsync(facebookUser.Id);
         if (user is null)
@@ -62,7 +71,7 @@ public class AuthService : IAuthService
             // Create user
             var household = new Household
             {
-                Name = householdName
+                Name = $"{facebookUser.Name}'s Household"
             };
             household = await _householdRepository.CreateAsync(household);
 
@@ -73,7 +82,7 @@ public class AuthService : IAuthService
                 Household = household,
             };
 
-            await _userRepository.CreateAsync(user);
+            user = await _userRepository.CreateAsync(user);
         }
 
         return user;

@@ -18,7 +18,11 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> FacebookLogin([FromBody] CreateUserRequest request)
     {
-        var user = await _authService.LoginWithFacebookAsync(request.FacebookAccessToken, request.HouseholdName);
+        var user = await _authService.LoginWithFacebookAsync(request.FacebookAccessToken);
+
+        if (user is null)
+            return BadRequest();
+
         var jwt = _authService.GenerateJwt(user);
         return Ok(new { token = jwt });
     }

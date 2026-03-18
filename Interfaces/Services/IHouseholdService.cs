@@ -1,3 +1,4 @@
+using KucniSavetBackend.Domain;
 using KucniSavetBackend.DTO.Requests.User;
 using KucniSavetBackend.DTO.Responses;
 
@@ -5,6 +6,7 @@ namespace KucniSavetBackend.Interfaces.Services;
 
 public interface IHouseholdService
 {
-    Task<HouseholdResponse> GetByIdAsync(string id);
-    Task<HouseholdResponse> CreateAsync(CreateHouseholdRequest request);
+    Task<Household?> GetByIdAsync(string id);
+    Task<Household?> CreateAsync(string name);
+    Task<Household?> UpdateAsync(string id, string name);
 }

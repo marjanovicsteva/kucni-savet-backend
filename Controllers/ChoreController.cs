@@ -1,5 +1,7 @@
 using KucniSavetBackend.DTO.Requests.User;
 using KucniSavetBackend.Interfaces.Services;
+using KucniSavetBackend.Mappers;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KucniSavetBackend.Controllers;
@@ -23,7 +25,7 @@ public class ChoreController : ControllerBase
         if (chore is null)
             return NotFound();
 
-        return Ok(chore);
+        return Ok(ChoreMapper.ToResponse(chore));
     }
 
     [HttpPost]
@@ -44,6 +46,10 @@ public class ChoreController : ControllerBase
     public async Task<ActionResult> Assign([FromRoute] string choreId, [FromRoute] string assigneeId)
     {
         var chore = await _choreService.AddAssigneeToChore(choreId, assigneeId);
-        return Ok(chore);
+
+        if (chore is null)
+            return BadRequest();
+
+        return Ok(ChoreMapper.ToResponse(chore));
     }
 }

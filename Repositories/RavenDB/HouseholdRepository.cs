@@ -5,16 +5,11 @@ using Raven.Client.Documents.Session;
 
 namespace KucniSavetBackend.Repositories.RavenDB;
 
-public class HouseholdRepository : IHouseholdRepository
+public class HouseholdRepository(IAsyncDocumentSession session) : IHouseholdRepository
 {
-    private readonly IAsyncDocumentSession _session;
+    private readonly IAsyncDocumentSession _session = session;
     private static readonly string _prefix = nameof(HouseholdDocument);
     public static string Id(string key) => $"{_prefix}s/{key}";
-
-    public HouseholdRepository(IAsyncDocumentSession session)
-    {
-        _session = session;
-    }
 
     public async Task<Household?> GetByIdAsync(string key, bool prefixed = false)
     {
@@ -36,7 +31,6 @@ public class HouseholdRepository : IHouseholdRepository
     {
         var doc = new HouseholdDocument
         {
-            Id = household.Id,
             Name = household.Name
         };
 
@@ -50,7 +44,7 @@ public class HouseholdRepository : IHouseholdRepository
     {
         var doc = await _session.LoadAsync<HouseholdDocument>(household.Id);
 
-        doc.Name = household.Name;
+        doc.Name = household.Name ?? doc.Name;
 
         await _session.SaveChangesAsync();
 
@@ -68,6 +62,8 @@ public class HouseholdRepository : IHouseholdRepository
 
     public async Task DeleteAsync(Household household)
     {
+        if (household.Id is null) return;
+
         await DeleteAsync(household.Id, true);
     }
 }

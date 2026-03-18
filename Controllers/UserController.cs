@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using KucniSavetBackend.DTO.Requests.User;
 using KucniSavetBackend.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
+using KucniSavetBackend.Domain;
+using KucniSavetBackend.Mappers;
 
 namespace KucniSavetBackend.Controllers;
 
@@ -25,12 +26,12 @@ public class UserController : ControllerBase
         if (user is null)
             return NotFound();
         
-        return Ok(user);
+        return Ok(UserMapper.ToResponse(user));
     }
 
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult> Create(CreateUserRequest user)
+    public async Task<ActionResult> Create(User user)
     {
         try
         {

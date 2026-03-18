@@ -17,8 +17,11 @@ public class ChoreRepository : IChoreRepository
         _session = session;
     }
 
-    public async Task<Chore?> CreateAsync(Chore chore)
+    public async Task<Chore?> CreateAsync(Chore? chore)
     {
+        if (chore is null)
+            return null;
+
         var assignees = chore.Assignees;
         var doc = new ChoreDocument
         {

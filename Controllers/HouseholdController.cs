@@ -1,42 +1,50 @@
 using KucniSavetBackend.DTO.Requests.User;
 using KucniSavetBackend.Interfaces.Services;
+using KucniSavetBackend.Mappers;
+using KucniSavetBackend.Repositories.RavenDB;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KucniSavetBackend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class HouseholdController : ControllerBase
+public class HouseholdController(IHouseholdService householdService, IAuthorizationService authorizationService) : ControllerBase
 {
-    public readonly IHouseholdService _householdService;
+    private readonly IHouseholdService _householdService = householdService;
+    private readonly IAuthorizationService _authorizationService = authorizationService;
 
-    public HouseholdController(IHouseholdService householdService)
-    {
-        _householdService = householdService;
-    }
-
-    [HttpGet("{*id}")]
-    public async Task<ActionResult> GetById(string id)
+    [Authorize]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(string id)
     {
         var household = await _householdService.GetByIdAsync(id);
 
         if (household is null)
             return NotFound();
 
-        return Ok(household);
+        return Ok(HouseholdMapper.ToResponse(household));
     }
 
-    [HttpPost]
-    public async Task<ActionResult> Create(CreateHouseholdRequest request)
+    [Authorize]
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] UpdateHouseholdRequest request)
     {
-        try
-        {
-            var created = await _householdService.CreateAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(new { message = e.Message });
-        }
+        var authResult = await _authorizationService.AuthorizeAsync(
+            User,
+            HouseholdRepository.Id(request.Id),
+            "CanEditHousehold"
+        );
+
+        if (!authResult.Succeeded)
+            return Forbid();
+
+        var household = await _householdService.UpdateAsync(request.Id, request.Name);
+
+        if (household is null)
+            return NotFound();
+
+        return Ok(HouseholdMapper.ToResponse(household));
     }
+
 }

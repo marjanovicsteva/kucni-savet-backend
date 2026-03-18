@@ -7,64 +7,30 @@ using KucniSavetBackend.Mappers;
 
 namespace KucniSavetBackend.Services;
 
-public class UserService : IUserService
+public class UserService(IUserRepository userRepository, IHouseholdRepository householdRepository) : IUserService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IHouseholdRepository _householdRepository;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IHouseholdRepository _householdRepository = householdRepository;
     private readonly Uri FacebookUri = new("https://graph.facebook.com/v25.0");
 
-    public UserService(IUserRepository userRepository, IHouseholdRepository householdRepository)
-    {
-        _userRepository = userRepository;
-        _householdRepository = householdRepository;
-    }
-
-    public async Task<UserResponse?> CreateAsync(CreateUserRequest request)
+    public async Task<User?> CreateAsync(User user)
     {
         // Do validation at the beginning
-        var household = new Household
-        {
-            Name = request.HouseholdName
-        };
-        household = await _householdRepository.CreateAsync(household);
-
-        var facebookData = await GetUserFacebookDataAsync(request.FacebookAccessToken);
-        var user = new User
-        {
-            FacebookId = facebookData.Id,
-            Name = facebookData.Name,
-            Household = household,
-        };
         
         user = await _userRepository.CreateAsync(user);
 
-        return UserMapper.ToResponse(user);
+        return user;
     }
 
-    public Task<UserResponse?> GetByFacebookIdAsync(string facebookId)
+    public async Task<User?> GetByFacebookIdAsync(string facebookId)
     {
-        throw new NotImplementedException();
+        var user = await _userRepository.GetByFacebookIdAsync(facebookId);
+        return user;
     }
 
-    public async Task<UserResponse?> GetByIdAsync(string id)
+    public async Task<User?> GetByIdAsync(string id)
     {
         var user = await _userRepository.GetByIdAsync(id);
-        return user is not null ? UserMapper.ToResponse(user) : null;
-    }
-
-    public async Task<FacebookMeResponse?> GetUserFacebookDataAsync(string facebookAccessToken)
-    {
-        var client = new HttpClient
-        {
-            BaseAddress = FacebookUri
-        };
-
-        using HttpResponseMessage response = await client.GetAsync($"me?access_token={facebookAccessToken}");
-
-        response.EnsureSuccessStatusCode();
-
-        var jsonResponse = await response.Content.ReadFromJsonAsync<FacebookMeResponse>();
-
-        return jsonResponse ?? null;
+        return user;
     }
 }

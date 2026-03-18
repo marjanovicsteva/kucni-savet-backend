@@ -1,5 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using KucniSavetBackend.Authorization.Handlers;
+using KucniSavetBackend.Authorization.Requirements;
 using KucniSavetBackend.Interfaces.Repositories;
 using KucniSavetBackend.Interfaces.Services;
 using KucniSavetBackend.Middleware;
@@ -7,6 +9,7 @@ using KucniSavetBackend.Repositories;
 using KucniSavetBackend.Repositories.RavenDB;
 using KucniSavetBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Session;
@@ -52,7 +55,7 @@ builder.Services.AddTransient<ExceptionMiddleware>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = false,
             ValidateAudience = false,
@@ -63,7 +66,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             )
         };
     });
-builder.Services.AddAuthorization();
+    
+builder.Services.AddScoped<IAuthorizationHandler, HouseholdAuthorizationHandler>();
+builder.Services.AddAuthorizationBuilder()
+        .AddPolicy("CanEditHousehold", policy => policy.Requirements.Add(new HouseholdRequirement()));
 
 var app = builder.Build();
 
@@ -81,6 +87,7 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
