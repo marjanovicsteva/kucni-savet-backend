@@ -71,6 +71,9 @@ builder.Services.AddScoped<IAuthorizationHandler, HouseholdAuthorizationHandler>
 builder.Services.AddAuthorizationBuilder()
         .AddPolicy("CanEditHousehold", policy => policy.Requirements.Add(new HouseholdRequirement()));
 
+builder.Services.AddHttpClient<AuthService>();
+builder.Services.AddHttpClient<UserService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

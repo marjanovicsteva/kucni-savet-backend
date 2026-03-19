@@ -14,8 +14,8 @@ public class HouseholdController(IHouseholdService householdService, IAuthorizat
     private readonly IHouseholdService _householdService = householdService;
     private readonly IAuthorizationService _authorizationService = authorizationService;
 
-    [Authorize]
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetById(string id)
     {
         var household = await _householdService.GetByIdAsync(id);
@@ -26,8 +26,8 @@ public class HouseholdController(IHouseholdService householdService, IAuthorizat
         return Ok(HouseholdMapper.ToResponse(household));
     }
 
-    [Authorize]
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> Update([FromBody] UpdateHouseholdRequest request)
     {
         var authResult = await _authorizationService.AuthorizeAsync(

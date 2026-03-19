@@ -8,14 +8,9 @@ namespace KucniSavetBackend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UserController : ControllerBase
+public class UserController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService;
-
-    public UserController(IUserService userService)
-    {
-        _userService = userService;
-    }
+    private readonly IUserService _userService = userService;
 
     [HttpGet("{id}")]
     [Authorize]
@@ -31,6 +26,7 @@ public class UserController : ControllerBase
 
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult> Create(User user)
     {
         try
@@ -43,5 +39,19 @@ public class UserController : ControllerBase
         {
             return BadRequest(new { message = e.Message });
         }
+    }
+
+    [HttpPost("add-to-household")]
+    [Authorize]
+    public async Task<IActionResult> AddUserToHousehold([FromQuery] string name)
+    {
+        var householdId = User.FindFirst("householdId")?.Value;
+
+        if (householdId is null)
+            return BadRequest();
+
+        var user = await _userService.CreateWithInviteCodeAsync(name, householdId);
+
+        return Ok(UserMapper.ToResponse(user));
     }
 }

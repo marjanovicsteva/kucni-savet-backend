@@ -6,15 +6,11 @@ using Raven.Client.Documents.Session;
 
 namespace KucniSavetBackend.Repositories.RavenDB;
 
-public class UserRepository : IUserRepository
+public class UserRepository(IAsyncDocumentSession session) : IUserRepository
 {
-    private readonly IAsyncDocumentSession _session;
+    private readonly IAsyncDocumentSession _session = session;
     private static readonly string _prefix = nameof(UserDocument);
     public static string Id(string key) => $"{_prefix}s/{key}";
-    public UserRepository(IAsyncDocumentSession session)
-    {
-        _session = session;
-    }
 
     public async Task<User?> GetByIdAsync(string key, bool prefixed = false)
     {
@@ -29,7 +25,8 @@ public class UserRepository : IUserRepository
         {
             Id = doc.Id,
             Name = doc.Name,
-            Image = doc.Image
+            Image = doc.Image,
+            InviteCode = doc.InviteCode
         };
 
         if (doc.HouseholdId is not null)
@@ -57,7 +54,38 @@ public class UserRepository : IUserRepository
         {
             Id = doc.Id,
             Name = doc.Name,
-            Image = doc.Image
+            Image = doc.Image,
+            InviteCode = doc.InviteCode
+        };
+
+        if (doc.HouseholdId is not null)
+        {
+            var household = await _session.LoadAsync<HouseholdDocument>(doc.HouseholdId);
+            user.Household = new Household
+            {
+                Id = household.Id,
+                Name = household.Name
+            };
+        }
+
+        return user;
+    }
+
+    public async Task<User?> GeyByInviteCodeAsync(string inviteCode)
+    {
+        var doc = await _session.Query<UserDocument>()
+            .Where(user => user.InviteCode == inviteCode)
+            .FirstOrDefaultAsync();
+
+        if (doc is null)
+            return null;
+
+        var user = new User
+        {
+            Id = doc.Id,
+            Name = doc.Name,
+            Image = doc.Image,
+            InviteCode = doc.InviteCode
         };
 
         if (doc.HouseholdId is not null)
@@ -83,7 +111,8 @@ public class UserRepository : IUserRepository
             Name = user.Name,
             Image = user.Image,
             FacebookId = user.FacebookId,
-            HouseholdId = user.Household?.Id
+            HouseholdId = user.Household?.Id,
+            InviteCode = user.InviteCode
         };
 
         await _session.StoreAsync(doc);
@@ -98,6 +127,8 @@ public class UserRepository : IUserRepository
 
         doc.Name = user.Name;
         doc.Image = user.Image;
+        doc.FacebookId = user.FacebookId;
+        doc.InviteCode = user.InviteCode;
 
         await _session.SaveChangesAsync();
 

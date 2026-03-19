@@ -1,19 +1,11 @@
 namespace KucniSavetBackend.Exceptions;
 
 
-public class NotFoundException : Exception
+public class NotFoundException(string message) : Exception(message)
 {
-    public NotFoundException(string message) : base(message)
-    {
-        
-    }
 }
 
-public class NotFoundException<T> : NotFoundException
+public class NotFoundException<T>(string key) : NotFoundException($"{typeof(T).Name} {key} not found.")
 {
-    public NotFoundException(string key) : base($"{typeof(T).Name} {key} not found.")
-    { 
-        
-    }
 }
 

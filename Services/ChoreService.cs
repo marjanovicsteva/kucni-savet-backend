@@ -30,6 +30,11 @@ public class ChoreService(IChoreRepository choreRepository, IUserRepository user
 
         return chore;
     }
+    
+    public Task<Chore?> UpdateAsync(string id, string name, Frequency frequency)
+    {
+        throw new NotImplementedException();
+    }
 
     public async Task<Chore?> GetByIdAsync(string id)
     {
@@ -59,5 +64,10 @@ public class ChoreService(IChoreRepository choreRepository, IUserRepository user
         chore = await _choreRepository.UpdateAsync(chore);
 
         return chore;
+    }
+
+    public Task<Chore?> RemoveAssigneFromChore(string choreId, string assigneeId)
+    {
+        throw new NotImplementedException();
     }
 }

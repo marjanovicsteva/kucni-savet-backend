@@ -9,14 +9,9 @@ namespace KucniSavetBackend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ChoreController : ControllerBase
+public class ChoreController(IChoreService choreService) : ControllerBase
 {
-    public readonly IChoreService _choreService;
-
-    public ChoreController(IChoreService choreService)
-    {
-        _choreService = choreService;
-    }
+    public readonly IChoreService _choreService = choreService;
 
     [HttpGet("{id}")]
     [Authorize]

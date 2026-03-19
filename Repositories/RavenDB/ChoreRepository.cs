@@ -6,16 +6,11 @@ using Raven.Client.Documents.Session;
 
 namespace KucniSavetBackend.Repositories;
 
-public class ChoreRepository : IChoreRepository
+public class ChoreRepository(IAsyncDocumentSession session) : IChoreRepository
 {
-    private readonly IAsyncDocumentSession _session;
+    private readonly IAsyncDocumentSession _session = session;
     private static readonly string _prefix = nameof(ChoreDocument);
     public static string Id(string key) => $"{_prefix}s/{key}";
-
-    public ChoreRepository(IAsyncDocumentSession session)
-    {
-        _session = session;
-    }
 
     public async Task<Chore?> CreateAsync(Chore? chore)
     {
