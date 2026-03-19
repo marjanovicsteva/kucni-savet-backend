@@ -1,11 +1,9 @@
 using KucniSavetBackend.Domain;
 using KucniSavetBackend.DTO.Requests.User;
-using KucniSavetBackend.DTO.Responses;
+using KucniSavetBackend.Enums;
 using KucniSavetBackend.Exceptions;
 using KucniSavetBackend.Interfaces.Repositories;
 using KucniSavetBackend.Interfaces.Services;
-using KucniSavetBackend.Mappers;
-using KucniSavetBackend.Repositories.RavenDB;
 
 namespace KucniSavetBackend.Services;
 
@@ -14,17 +12,18 @@ public class ChoreService(IChoreRepository choreRepository, IUserRepository user
     private readonly IChoreRepository _choreRepository = choreRepository;
     private readonly IUserRepository _userRepository = userRepository;
 
-    public async Task<Chore?> CreateAsync(CreateChoreRequest request)
+    public async Task<Chore?> CreateAsync(string name, Frequency frequency, string householdId)
     {
-        if (string.IsNullOrEmpty(request.Name))
+        if (string.IsNullOrEmpty(name))
         {
             // Do valuidateion
         }
 
         var chore = new Chore
         {
-            Name = request.Name,
-            Frequency = request.Frequency
+            HouseholdId = householdId,
+            Name = name,
+            Frequency = frequency,
         };
 
         chore = await _choreRepository.CreateAsync(chore);

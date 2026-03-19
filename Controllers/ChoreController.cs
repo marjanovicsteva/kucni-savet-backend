@@ -1,6 +1,7 @@
 using KucniSavetBackend.DTO.Requests.User;
 using KucniSavetBackend.Interfaces.Services;
 using KucniSavetBackend.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ public class ChoreController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<ActionResult> GetById(string id)
     {
         var chore = await _choreService.GetByIdAsync(id);
@@ -29,11 +31,17 @@ public class ChoreController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult> Create(CreateChoreRequest request)
     {
+        var householdId = User.FindFirst("householdId")?.Value;
+
+        if (householdId is null)
+            return BadRequest();
+
         try
         {
-            var created = await _choreService.CreateAsync(request);
+            var created = await _choreService.CreateAsync(request.Name, request.Frequency, householdId);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
         catch (Exception e)
@@ -43,6 +51,7 @@ public class ChoreController : ControllerBase
     }
 
     [HttpPost("{choreId}/assign/{assigneeId}")]
+    [Authorize]
     public async Task<ActionResult> Assign([FromRoute] string choreId, [FromRoute] string assigneeId)
     {
         var chore = await _choreService.AddAssigneeToChore(choreId, assigneeId);

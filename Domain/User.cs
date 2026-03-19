@@ -7,4 +7,5 @@ public class User
     public string? Name { get; set; } = null;
     public string? FacebookId { get; set; } = null;
     public Household? Household { get; set; } = null;
+    public string? InviteCode { get; set; } = null;
 }

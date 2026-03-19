@@ -1,12 +1,11 @@
 using KucniSavetBackend.Domain;
-using KucniSavetBackend.DTO.Requests.User;
-using KucniSavetBackend.DTO.Responses;
+using KucniSavetBackend.Enums;
 
 namespace KucniSavetBackend.Interfaces.Services;
 
 public interface IChoreService
 {
     Task<Chore?> GetByIdAsync(string id);
-    Task<Chore?> CreateAsync(CreateChoreRequest request);
+    Task<Chore?> CreateAsync(string name, Frequency frequency, string householdId);
     Task<Chore?> AddAssigneeToChore(string choreId, string assigneeId);
 }

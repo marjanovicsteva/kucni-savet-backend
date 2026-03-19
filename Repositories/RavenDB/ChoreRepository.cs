@@ -25,6 +25,7 @@ public class ChoreRepository : IChoreRepository
         var assignees = chore.Assignees;
         var doc = new ChoreDocument
         {
+            HouseholdId = chore.HouseholdId,
             Frequency = chore.Frequency,
             Name = chore.Name,
             LastDone = chore.LastDone,
@@ -47,6 +48,7 @@ public class ChoreRepository : IChoreRepository
         return new Chore
         {
             Id = doc.Id,
+            HouseholdId = doc.HouseholdId,
             Name = doc.Name,
             Frequency = doc.Frequency,
             LastDone = doc.LastDone,
