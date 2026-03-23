@@ -26,20 +26,20 @@ public class HouseholdController(IHouseholdService householdService, IAuthorizat
         return Ok(HouseholdMapper.ToResponse(household));
     }
 
-    [HttpPut]
+    [HttpPut("{householdId}")]
     [Authorize]
-    public async Task<IActionResult> Update([FromBody] UpdateHouseholdRequest request)
+    public async Task<IActionResult> Update([FromRoute] string householdId, [FromBody] UpdateHouseholdRequest request)
     {
         var authResult = await _authorizationService.AuthorizeAsync(
             User,
-            HouseholdRepository.Id(request.Id),
+            HouseholdRepository.Id(householdId),
             "CanEditHousehold"
         );
 
         if (!authResult.Succeeded)
             return Forbid();
 
-        var household = await _householdService.UpdateAsync(request.Id, request.Name);
+        var household = await _householdService.UpdateAsync(householdId, request.Name);
 
         if (household is null)
             return NotFound();

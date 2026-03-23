@@ -10,13 +10,17 @@ public static class ChoreMapper
         Id = chore.Id ?? default!,
         Name = chore.Name,
         Frequency = chore.Frequency,
-        Assignees = chore.Assignees.Select(assignee => UserMapper.ToResponse(assignee)).ToList()
+        LastDone = chore.LastDone,
+        ToDo = chore.ToDo,
+        Assignees = chore.Assignees.Select(assignee => UserMapper.ToResponse(assignee)).ToList(),
     };
 
     public static Chore ToDomain(ChoreResponse chore) => new Chore
     {
         Id = chore.Id,
         Name = chore.Name,
-        Frequency = chore.Frequency
+        Frequency = chore.Frequency,
+        LastDone = chore.LastDone,
+        Assignees = chore.Assignees.Select(assignee => UserMapper.ToDomain(assignee)).ToList()
     };
 }

@@ -4,6 +4,7 @@ using KucniSavetBackend.Enums;
 using KucniSavetBackend.Exceptions;
 using KucniSavetBackend.Interfaces.Repositories;
 using KucniSavetBackend.Interfaces.Services;
+using KucniSavetBackend.Repositories.RavenDB;
 
 namespace KucniSavetBackend.Services;
 
@@ -31,32 +32,30 @@ public class ChoreService(IChoreRepository choreRepository, IUserRepository user
         return chore;
     }
     
-    public Task<Chore?> UpdateAsync(string id, string name, Frequency frequency)
+    public async Task<Chore?> UpdateAsync(string id, string name, Frequency frequency)
     {
-        throw new NotImplementedException();
-    }
+        var chore = new Chore
+        {
+            Id = id,
+            Name = name,
+            Frequency = frequency
+        };
 
-    public async Task<Chore?> GetByIdAsync(string id)
-    {
-        var chore = await _choreRepository.GetByIdAsync(id);
-
-        if (chore is null)
-            throw new NotFoundException<Chore>(id);
+        chore = await _choreRepository.UpdateAsync(chore);
 
         return chore;
     }
 
-    public async Task<Chore?> AddAssigneeToChore(string choreId, string assigneeId)
+    public async Task<Chore?> GetByIdAsync(string id)
     {
-        var chore = await _choreRepository.GetByIdAsync(choreId);
+        var chore = await _choreRepository.GetByIdAsync(id) ?? throw new NotFoundException<Chore>(id);
+        return chore;
+    }
 
-        if (chore is null)
-            throw new NotFoundException<Chore>(choreId);
-
-        var assignee = await _userRepository.GetByIdAsync(assigneeId);
-
-        if (assignee is null)
-            throw new NotFoundException<User>(assigneeId);
+    public async Task<Chore?> AddAssignee(string choreId, string assigneeId)
+    {
+        var chore = await _choreRepository.GetByIdAsync(choreId) ?? throw new NotFoundException<Chore>(choreId);
+        var assignee = await _userRepository.GetByIdAsync(assigneeId) ?? throw new NotFoundException<User>(assigneeId);
 
         if (!chore.Assignees.Any(a => a.Id == assignee.Id))
             chore.Assignees.Add(assignee);
@@ -66,8 +65,23 @@ public class ChoreService(IChoreRepository choreRepository, IUserRepository user
         return chore;
     }
 
-    public Task<Chore?> RemoveAssigneFromChore(string choreId, string assigneeId)
+    public async Task<Chore?> RemoveAssigne(string choreId, string assigneeId)
     {
-        throw new NotImplementedException();
+        var chore = await _choreRepository.GetByIdAsync(choreId) ?? throw new NotFoundException<Chore>(choreId);
+        chore.Assignees.RemoveAll(assignee => assignee.Id == UserRepository.Id(assigneeId));
+
+        chore = await _choreRepository.UpdateAsync(chore);
+
+        return chore;
+    }
+
+    public async Task<Chore?> MarkAsDone(string choreId)
+    {
+        var chore = await _choreRepository.GetByIdAsync(choreId) ?? throw new NotFoundException<Chore>(choreId);
+        chore.LastDone = DateTime.UtcNow;
+
+        chore = await _choreRepository.UpdateAsync(chore);
+
+        return chore;
     }
 }

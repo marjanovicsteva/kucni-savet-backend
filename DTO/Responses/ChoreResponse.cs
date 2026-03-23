@@ -8,5 +8,6 @@ public class ChoreResponse
     public required string Name { get; set; }
     public required Frequency Frequency { get; set; }
     public DateTime? LastDone { get; set; }
+    public bool? ToDo { get; set; }
     public required List<UserResponse> Assignees { get; set; }
 }

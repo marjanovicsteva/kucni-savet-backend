@@ -51,7 +51,8 @@ public class ChoreRepository(IAsyncDocumentSession session) : IChoreRepository
             {
                 Id = assignee.Id,
                 Image = assignee.Image,
-                Name = assignee.Name
+                Name = assignee.Name,
+                // TODO Dodati household objekat
             }).ToList()
         };
     }
