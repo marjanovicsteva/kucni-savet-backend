@@ -7,4 +7,5 @@ public class User
     public string? FacebookId { get; set; }
     public Household? Household { get; init; }
     public string? InviteCode { get; set; }
+    public string? OnboardingStep { get; set; }
 }

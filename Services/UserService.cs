@@ -18,6 +18,11 @@ public class UserService(IUserRepository userRepository, IHouseholdRepository ho
 
         return user;
     }
+    
+    public Task<User?> UpdateAsync(User user)
+    {
+        return userRepository.UpdateAsync(user);
+    }
 
     public async Task<User?> CreateWithInviteCodeAsync(string name, string householdId)
     {

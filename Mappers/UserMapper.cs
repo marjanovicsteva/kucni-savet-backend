@@ -11,7 +11,8 @@ public static class UserMapper
         {
             Id = user.Id ?? "",
             Name = user?.Name ?? "",
-            Household = user?.Household?.ToResponse()
+            Household = user?.Household?.ToResponse(),
+            OnboardingStep = user?.OnboardingStep ?? "INITIAL"
         };
     }
 
@@ -21,7 +22,8 @@ public static class UserMapper
         {
             Id = user.Id.Split('/').Last(),
             Name = user.Name,
-            Household = household?.ToDomain()
+            Household = household?.ToDomain(),
+            OnboardingStep = user.OnboardingStep
         };
     }
 }

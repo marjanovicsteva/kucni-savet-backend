@@ -75,6 +75,18 @@ public class UserController(IUserService userService) : ControllerBase
 
         return Ok(created.ToResponse());
     }
+    
+    [HttpPut]
+    [Authorize]
+    public async Task<IActionResult> Update(User user)
+    {
+        var updated = await userService.UpdateAsync(user);
+
+        if (updated is null)
+            return NotFound();
+
+        return Ok(updated.ToResponse());
+    }
 
     [HttpPost("add-to-household")]
     [Authorize]

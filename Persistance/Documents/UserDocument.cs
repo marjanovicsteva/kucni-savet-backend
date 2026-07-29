@@ -8,4 +8,5 @@ public class UserDocument
     public string HouseholdId { get; init; } = null!;
     public string FacebookId { get ; set; } = null!;
     public string InviteCode { get; set; } = null!;
+    public string OnboardingStep { get; set; } = "INITIAL";
 }

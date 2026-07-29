@@ -116,6 +116,7 @@ public class UserRepository(IAsyncDocumentSession session) : IUserRepository
         doc.Name = user.Name ?? doc.Name;
         doc.FacebookId = user.FacebookId ?? doc.FacebookId;
         doc.InviteCode = user.InviteCode ?? doc.InviteCode;
+        doc.OnboardingStep = user.OnboardingStep ?? doc.OnboardingStep;
 
         await session.SaveChangesAsync();
         

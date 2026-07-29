@@ -33,14 +33,15 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IDocumentStore>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(
-        "./Secret/cert.pfx",
-        password: null
-    );
+    // This is only required if it's a secured connection
+    // var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(
+    //     "./Secret/cert.pfx",
+    //     password: null
+    // );
 
     var store = new DocumentStore
     {
-        Certificate = clientCertificate,
+        // Certificate = clientCertificate,
         Urls = configuration.GetSection("RavenDb:Urls").Get<string[]>(),
         Database = configuration["RavenDb:Database"]
     };

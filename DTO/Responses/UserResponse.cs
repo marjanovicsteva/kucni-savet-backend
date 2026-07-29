@@ -6,4 +6,5 @@ public class UserResponse
     public string Name { get; set; } = null!;
     public string Image => $"/user/{Id}/image";
     public HouseholdResponse? Household { get; set; } = new();
+    public string OnboardingStep { get; set; } = "INITIAL";
 }
